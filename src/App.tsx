@@ -648,7 +648,7 @@ function LandingPage() {
       <section ref={verifyRef} className="section-pinned z-40">
         <div className="absolute inset-0 z-[1]">
           <img 
-            src="/verify_transcript_card.jpg" 
+            src="/public/court 2.png" 
             alt="Judge" 
             className="w-full h-full object-cover opacity-30"
           />
@@ -1040,7 +1040,7 @@ function LandingPage() {
             <div className="flow-content hidden lg:block">
               <div className="rounded-2xl overflow-hidden shadow-card">
                 <img 
-                  src="/contact_courtroom_scene.jpg" 
+                  src="/court 1.jpeg" 
                   alt="Courtroom" 
                   className="w-full h-auto"
                 />
