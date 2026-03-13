@@ -5,7 +5,7 @@ import { inspectAttr } from 'kimi-plugin-inspect-react'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: './',
+  base: '/swakili-scribe-front-end/',
   plugins: [inspectAttr(), react()],
   resolve: {
     alias: {
