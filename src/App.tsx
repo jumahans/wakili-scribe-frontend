@@ -443,7 +443,7 @@ function LandingPage() {
       <section ref={heroRef} className="section-pinned z-10">
         <div className="hero-bg absolute inset-0 z-[1]">
           <img 
-            src="/wakili-scribe-frontend/hero_courtroom_bench.jpg" 
+            src={`${import.meta.env.BASE_URL}hero_courtroom_bench.jpg`} 
             alt="Courtroom" 
             className="w-full h-full object-cover"
           />
@@ -480,7 +480,7 @@ function LandingPage() {
         {/* Right Capture Card */}
         <div className="hero-card absolute right-[6vw] top-[22vh] w-[34vw] h-[56vh] z-[6] rounded-2xl overflow-hidden shadow-card hidden lg:block">
           <img 
-            src="/capture_feed_card.jpg" 
+            src={`${import.meta.env.BASE_URL}capture_feed_card.jpg`} 
             alt="Courtroom Feed" 
             className="w-full h-full object-cover"
           />
@@ -500,7 +500,7 @@ function LandingPage() {
         {/* Left Media Panel */}
         <div className="capture-left absolute left-0 top-0 w-[55vw] h-full z-[2] overflow-hidden">
           <img 
-            src="/wakili-scribe-frontend/capture_laptop_closeup.jpg" 
+            src={`${import.meta.env.BASE_URL}capture_laptop_closeup.jpg`} 
             alt="Laptop Capture" 
             className="w-full h-full object-cover"
           />
@@ -550,7 +550,7 @@ function LandingPage() {
         {/* Floating Feed Card */}
         <div className="capture-feed-card absolute left-1/2 top-[54vh] -translate-x-1/2 w-[22vw] h-[30vh] z-[6] rounded-2xl overflow-hidden shadow-card hidden lg:block animate-float">
           <img 
-            src="/wakili-scribe-frontend/capture_feed_card.jpg" 
+            src={`${import.meta.env.BASE_URL}capture_feed_card.jpg`} 
             alt="Capture Feed" 
             className="w-full h-full object-cover"
           />
@@ -571,7 +571,7 @@ function LandingPage() {
       <section ref={intelligenceRef} className="section-pinned z-30">
         <div className="absolute inset-0 z-[1]">
           <img 
-            src="/wakili-scribe-frontend/intelligence_courtroom_wide.jpg" 
+            src={`${import.meta.env.BASE_URL}intelligence_courtroom_wide.jpg`} 
             alt="Courtroom" 
             className="w-full h-full object-cover opacity-40"
           />
@@ -648,7 +648,7 @@ function LandingPage() {
       <section ref={verifyRef} className="section-pinned z-40">
         <div className="absolute inset-0 z-[1]">
           <img 
-            src="/wakili-scribe-frontend/court 2.png" 
+            src={`${import.meta.env.BASE_URL}court2.png`} 
             alt="Judge" 
             className="w-full h-full object-cover opacity-30"
           />
@@ -887,7 +887,7 @@ function LandingPage() {
       <section ref={securityRef} id="security" className="section-pinned z-[60]">
         <div className="absolute inset-0 z-[1]">
           <img 
-            src="/wakili-scribe-frontend/security_vault_background.jpg" 
+            src={`${import.meta.env.BASE_URL}security_vault_background.jpg`} 
             alt="Security" 
             className="w-full h-full object-cover opacity-50"
           />
@@ -1040,7 +1040,7 @@ function LandingPage() {
             <div className="flow-content hidden lg:block">
               <div className="rounded-2xl overflow-hidden shadow-card">
                 <img 
-                  src="/wakili-scribe-frontend/court 1.jpeg" 
+                  src={`${import.meta.env.BASE_URL}court1.jpeg`} 
                   alt="Courtroom" 
                   className="w-full h-auto"
                 />
@@ -1115,7 +1115,7 @@ function LandingPage() {
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter basename="/wakili-scribe-frontend">
+      <BrowserRouter basename='/wakili-scribe-frontend'>
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/dashboard" element={
