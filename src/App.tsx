@@ -385,7 +385,7 @@ function LandingPage() {
   return (
     <div ref={mainRef} className="relative bg-ws-black">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 lg:px-[7vw] py-4 sm:py-6 flex items-center justify-between bg-gradient-to-b from-ws-black/80 to-transparent">
+      <nav className="fixed top-0 left-0 right-0 z-50 px-[7vw] py-6 flex items-center justify-between bg-gradient-to-b from-ws-black/80 to-transparent">
         <div className="font-sora font-bold text-xl text-ws-text-primary tracking-tight">
           Wakili-Scribe
         </div>
@@ -419,25 +419,25 @@ function LandingPage() {
         >
           {isNavOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
-      </nav>
 
-      {/* Mobile Nav Overlay */}
-      {isNavOpen && (
-        <div className="fixed inset-0 z-40 bg-ws-black/95 backdrop-blur-lg md:hidden">
-          <div className="flex flex-col items-center justify-center h-full gap-8">
-            <button onClick={() => scrollToSection('capture')} className="text-2xl text-ws-text-primary">Product</button>
-            <button onClick={() => scrollToSection('pricing')} className="text-2xl text-ws-text-primary">Pricing</button>
-            <button onClick={() => scrollToSection('security')} className="text-2xl text-ws-text-primary">Security</button>
-            <button onClick={() => scrollToSection('contact')} className="text-2xl text-ws-text-primary">Contact</button>
-            <Button 
-              onClick={() => { setShowDemoDialog(true); setIsNavOpen(false); }}
-              className="bg-ws-coral hover:bg-ws-coral/90 text-white text-lg font-medium px-8 py-3 rounded-full mt-4"
-            >
-              Request Demo
-            </Button>
+        {/* Mobile Nav Overlay */}
+        {isNavOpen && (
+          <div className="fixed inset-0 top-16 z-40 bg-ws-black md:hidden">
+            <div className="flex flex-col items-center justify-center h-full gap-8">
+              <button onClick={() => scrollToSection('capture')} className="text-2xl text-ws-text-primary">Product</button>
+              <button onClick={() => scrollToSection('pricing')} className="text-2xl text-ws-text-primary">Pricing</button>
+              <button onClick={() => scrollToSection('security')} className="text-2xl text-ws-text-primary">Security</button>
+              <button onClick={() => scrollToSection('contact')} className="text-2xl text-ws-text-primary">Contact</button>
+              <Button 
+                onClick={() => { setShowDemoDialog(true); setIsNavOpen(false); }}
+                className="bg-ws-coral hover:bg-ws-coral/90 text-white text-lg font-medium px-8 py-3 rounded-full mt-4"
+              >
+                Request Demo
+              </Button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </nav>
 
       {/* Section 1: Hero - Shadow Record */}
       <section ref={heroRef} className="section-pinned z-10">
@@ -451,16 +451,16 @@ function LandingPage() {
         <div className="vignette-overlay absolute inset-0 z-[2]" />
         <div className="grain-overlay absolute inset-0 z-[3]" />
         
-        <div className="relative z-[5] h-full flex flex-col justify-center px-4 sm:px-6 lg:px-[7vw]">
-          <div className="w-full lg:max-w-[46vw]">
+        <div className="relative z-[5] h-full flex flex-col justify-center px-[7vw]">
+          <div className="max-w-[46vw]">
             <p className="hero-micro mono-label text-ws-coral mb-4">WAKILI-SCRIBE v1.0</p>
             <h1 className="hero-headline heading-display text-[clamp(44px,6vw,84px)] text-ws-text-primary mb-6">
               Shadow Record
             </h1>
-            <p className="hero-subheadline text-lg md:text-xl text-ws-text-secondary w-full lg:max-w-[34vw] mb-8 leading-relaxed">
+            <p className="hero-subheadline text-lg md:text-xl text-ws-text-secondary max-w-[34vw] mb-8 leading-relaxed">
               Capture virtual hearings without interference. Transcribe with Kenyan legal precision.
             </p>
-            <div className="hero-cta flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="hero-cta flex items-center gap-4">
               <Button 
                 onClick={() => setShowDemoDialog(true)}
                 className="bg-ws-coral hover:bg-ws-coral/90 text-white font-medium px-6 py-3 rounded-full flex items-center gap-2"
@@ -498,23 +498,22 @@ function LandingPage() {
       {/* Section 2: Capture Engine */}
       <section ref={captureRef} id="capture" className="section-pinned z-20">
         {/* Left Media Panel */}
-        <div className="capture-left absolute left-0 top-0 w-full lg:w-[55vw] h-full z-[2] overflow-hidden">
+        <div className="capture-left absolute left-0 top-0 w-[55vw] h-full z-[2] overflow-hidden">
           <img 
             src={`${import.meta.env.BASE_URL}capture_laptop_closeup.jpg`} 
             alt="Laptop Capture" 
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent to-ws-black/80 hidden lg:block" />
-          <div className="absolute inset-0 bg-gradient-to-t from-ws-black via-ws-black/80 to-transparent lg:hidden" />
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent to-ws-black/80" />
         </div>
 
         {/* Right Content Panel */}
-        <div className="capture-right absolute right-0 top-0 w-full lg:w-[45vw] h-full z-[3] bg-ws-black/90 lg:bg-ws-black flex flex-col justify-center px-4 sm:px-6 lg:px-[6vw]">
+        <div className="capture-right absolute right-0 top-0 w-[45vw] h-full z-[3] bg-ws-black flex flex-col justify-center px-[6vw]">
           <p className="capture-headline mono-label text-ws-coral mb-4">CAPTURE</p>
           <h2 className="capture-headline heading-2 text-[clamp(32px,3.5vw,56px)] text-ws-text-primary mb-6">
             Join silently.<br />Record cleanly.
           </h2>
-          <p className="capture-body text-ws-text-secondary leading-relaxed mb-8 w-full lg:max-w-[30vw]">
+          <p className="capture-body text-ws-text-secondary leading-relaxed mb-8 max-w-[30vw]">
             A headless browser enters as a branded observer—no notifications, no interference. 
             System audio is captured directly, not through a microphone.
           </p>
@@ -619,7 +618,7 @@ function LandingPage() {
         </div>
 
         {/* Right Text Block */}
-        <div className="intel-text-block absolute left-4 sm:left-[7vw] lg:left-[54vw] right-4 sm:right-[7vw] lg:right-auto lg:w-[40vw] top-[18vh] z-[5]">
+        <div className="intel-text-block absolute right-[7vw] top-[22vh] w-[40vw] z-[5] lg:left-[54vw]">
           <h2 className="intel-headline heading-2 text-[clamp(32px,3.5vw,56px)] text-ws-text-primary mb-6">
             Built for how<br />Kenyans speak.
           </h2>
@@ -658,7 +657,7 @@ function LandingPage() {
         <div className="grain-overlay absolute inset-0 z-[3]" />
 
         {/* Left Text */}
-        <div className="verify-text absolute left-4 sm:left-[7vw] right-4 sm:right-auto sm:w-[40vw] top-[18vh] z-[5]">
+        <div className="verify-text absolute left-[7vw] top-[18vh] w-[40vw] z-[5]">
           <h2 className="heading-2 text-[clamp(32px,3.5vw,56px)] text-ws-text-primary mb-6">
             Click a word.<br />Hear the truth.
           </h2>
@@ -746,8 +745,8 @@ function LandingPage() {
 
       {/* Section 5: Built for Kenyan Courts */}
       <section className="flowing-section relative z-50 bg-ws-black py-20 lg:py-28">
-        <div className="px-4 sm:px-6 lg:px-[7vw]">
-          <div className="flow-heading w-full lg:max-w-[52vw] mb-12">
+        <div className="px-[7vw]">
+          <div className="flow-heading max-w-[52vw] mb-12">
             <h2 className="heading-2 text-[clamp(28px,3vw,48px)] text-ws-text-primary mb-4">
               Local language. Local infrastructure.
             </h2>
@@ -793,7 +792,7 @@ function LandingPage() {
 
       {/* Section 6: Pricing */}
       <section id="pricing" className="flowing-section relative z-50 bg-ws-white py-20 lg:py-28">
-        <div className="px-4 sm:px-6 lg:px-[7vw]">
+        <div className="px-[7vw]">
           <div className="flow-heading text-center mb-12">
             <h2 className="heading-2 text-[clamp(28px,3vw,48px)] text-ws-black mb-4">
               Pay for what you use. Scale when you need.
@@ -897,7 +896,7 @@ function LandingPage() {
         <div className="grain-overlay absolute inset-0 z-[3]" />
 
         {/* Vault Card */}
-        <div className="vault-card absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] sm:w-[80%] lg:w-[72vw] max-w-[1100px] h-auto min-h-[70vh] lg:h-[62vh] z-[6] rounded-2xl card-glass p-4 sm:p-6 lg:p-8 flex flex-col lg:flex-row gap-8">
+        <div className="vault-card absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[72vw] max-w-[1100px] h-[62vh] z-[6] rounded-2xl card-glass p-8 flex flex-col lg:flex-row gap-8">
           {/* Left Text */}
           <div className="vault-text flex-1 flex flex-col justify-center">
             <div className="flex items-center gap-2 mb-4">
@@ -953,14 +952,14 @@ function LandingPage() {
 
       {/* Section 8: Workflow */}
       <section id="workflow" className="flowing-section relative z-[70] bg-ws-black py-20 lg:py-28">
-        <div className="px-4 sm:px-6 lg:px-[7vw]">
+        <div className="px-[7vw]">
           <div className="flow-heading mb-12">
             <h2 className="heading-2 text-[clamp(28px,3vw,48px)] text-ws-text-primary mb-4">
               From link to transcript—fast.
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="flow-content card-glass rounded-2xl p-6">
               <span className="text-ws-coral font-mono text-2xl font-bold">01</span>
               <h3 className="text-lg font-semibold text-ws-text-primary mt-3 mb-2">Dispatch</h3>
@@ -990,7 +989,7 @@ function LandingPage() {
 
       {/* Section 9: Contact */}
       <section id="contact" className="flowing-section relative z-[80] bg-ws-black py-20 lg:py-28">
-        <div className="px-4 sm:px-6 lg:px-[7vw]">
+        <div className="px-[7vw]">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left Form */}
             <div className="flow-heading">
@@ -1003,7 +1002,7 @@ function LandingPage() {
               </p>
 
               <div className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   <Input 
                     placeholder="Name" 
                     className="bg-ws-black/50 border-white/10 text-ws-text-primary placeholder:text-ws-text-secondary"
@@ -1052,7 +1051,7 @@ function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="relative z-[80] bg-ws-black border-t border-white/10 py-8 px-4 sm:px-6 lg:px-[7vw]">
+      <footer className="relative z-[80] bg-ws-black border-t border-white/10 py-8 px-[7vw]">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="font-sora font-bold text-lg text-ws-text-primary">
             Wakili-Scribe
@@ -1076,7 +1075,7 @@ function LandingPage() {
 
       {/* Demo Dialog */}
       <Dialog open={showDemoDialog} onOpenChange={setShowDemoDialog}>
-        <DialogContent className="bg-ws-black border-white/10 text-ws-text-primary max-w-[90vw] sm:max-w-md mx-4">
+        <DialogContent className="bg-ws-black border-white/10 text-ws-text-primary max-w-md">
           <DialogHeader>
             <DialogTitle className="text-xl font-sora font-bold">Request a Demo</DialogTitle>
           </DialogHeader>
