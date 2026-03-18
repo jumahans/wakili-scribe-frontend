@@ -10,12 +10,14 @@ import {
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { authApi } from '@/api/api';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Session {
   id: string;
   caseNumber: string;
   court: string;
-  status: 'live' | 'recording' | 'transcribing' | 'completed';
+  status: 'live' | 'recording' | 'transcribing' | 'completed' | 'scheduled' | 'joining';
   startTime: string;
   duration: string;
   accuracy: number;
@@ -30,69 +32,63 @@ interface Stats {
   creditsRemaining: number;
 }
 
+interface DashboardData {
+  user: {
+    id: string;
+    email: string;
+    first_name: string;
+    last_name: string;
+    name: string;
+    role: string;
+  };
+  stats: Stats;
+  recentSessions: Session[];
+}
+
 export default function Overview() {
+  const { setUser } = useAuth();
   const [sessions, setSessions] = useState<Session[]>([]);
-  const [stats, setStats] = useState<Stats>({
-    totalSessions: 0,
-    activeSessions: 0,
-    totalTranscripts: 0,
-    contradictionsFound: 0,
-    accuracyRate: 0,
-    creditsRemaining: 0,
-  });
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    // Mock data - in production, fetch from API
-    setSessions([
-      {
-        id: '1',
-        caseNumber: 'E123/2024',
-        court: 'Milimani Commercial',
-        status: 'live',
-        startTime: '10:30 AM',
-        duration: '45:23',
-        accuracy: 96.5,
-      },
-      {
-        id: '2',
-        caseNumber: 'C456/2024',
-        court: 'High Court - Family',
-        status: 'recording',
-        startTime: '11:00 AM',
-        duration: '23:15',
-        accuracy: 94.2,
-      },
-      {
-        id: '3',
-        caseNumber: 'A789/2024',
-        court: 'Magistrate Court',
-        status: 'transcribing',
-        startTime: '09:15 AM',
-        duration: '1:12:45',
-        accuracy: 97.8,
-      },
-    ]);
+    const fetchDashboard = async () => {
+      try {
+        const response = await authApi.getDashboard();
+        const data: DashboardData = response.data;
+        
+        // Update user in auth context
+        setUser(data.user);
+        
+        // Set dashboard data
+        setStats(data.stats);
+        setSessions(data.recentSessions);
+      } catch (err: any) {
+        setError(err.response?.data?.message || 'Failed to load dashboard');
+        console.error('Dashboard fetch error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    setStats({
-      totalSessions: 156,
-      activeSessions: 3,
-      totalTranscripts: 142,
-      contradictionsFound: 23,
-      accuracyRate: 95.8,
-      creditsRemaining: 45000,
-    });
-  }, []);
+    fetchDashboard();
+  }, [setUser]);
 
   const getStatusIcon = (status: Session['status']) => {
     switch (status) {
       case 'live':
-        return <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />;
       case 'recording':
-        return <div className="w-2 h-2 rounded-full bg-ws-coral" />;
+        return <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />;
+      case 'joining':
+        return <div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" />;
       case 'transcribing':
         return <Activity size={14} className="text-blue-400" />;
       case 'completed':
         return <CheckCircle size={14} className="text-green-500" />;
+      case 'scheduled':
+      default:
+        return <div className="w-2 h-2 rounded-full bg-gray-500" />;
     }
   };
 
@@ -100,14 +96,38 @@ export default function Overview() {
     switch (status) {
       case 'live':
         return 'Live';
+      case 'joining':
+        return 'Joining';
       case 'recording':
         return 'Recording';
       case 'transcribing':
         return 'Transcribing';
       case 'completed':
         return 'Completed';
+      case 'scheduled':
+        return 'Scheduled';
+      default:
+        return status;
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-8 h-8 border-2 border-ws-coral/30 border-t-ws-coral rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-lg">
+        <p className="text-red-400">{error}</p>
+      </div>
+    );
+  }
+
+  if (!stats) return null;
 
   return (
     <div className="space-y-6">
@@ -181,40 +201,46 @@ export default function Overview() {
         <CardHeader>
           <CardTitle className="text-lg text-ws-text-primary flex items-center gap-2">
             <Radio size={18} className="text-ws-coral" />
-            Active Sessions
+            Recent Sessions
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {sessions.map((session) => (
-              <div 
-                key={session.id}
-                className="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
-              >
-                <div className="flex items-center gap-4">
-                  {getStatusIcon(session.status)}
-                  <div>
-                    <p className="text-sm font-medium text-ws-text-primary">{session.caseNumber}</p>
-                    <p className="text-xs text-ws-text-secondary">{session.court}</p>
+          {sessions.length === 0 ? (
+            <div className="text-center py-8 text-ws-text-secondary">
+              <p>No sessions yet. Start your first transcription!</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {sessions.map((session) => (
+                <div 
+                  key={session.id}
+                  className="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
+                >
+                  <div className="flex items-center gap-4">
+                    {getStatusIcon(session.status)}
+                    <div>
+                      <p className="text-sm font-medium text-ws-text-primary">{session.caseNumber}</p>
+                      <p className="text-xs text-ws-text-secondary">{session.court}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-6">
+                    <div className="text-right">
+                      <p className="text-xs text-ws-text-secondary">{getStatusText(session.status)}</p>
+                      <p className="text-sm font-mono text-ws-text-primary">{session.duration}</p>
+                    </div>
+                    <div className="text-right hidden sm:block">
+                      <p className="text-xs text-ws-text-secondary">Accuracy</p>
+                      <p className="text-sm font-mono text-green-400">{session.accuracy}%</p>
+                    </div>
+                    <div className="text-right hidden md:block">
+                      <p className="text-xs text-ws-text-secondary">Started</p>
+                      <p className="text-sm text-ws-text-primary">{session.startTime}</p>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-6">
-                  <div className="text-right">
-                    <p className="text-xs text-ws-text-secondary">{getStatusText(session.status)}</p>
-                    <p className="text-sm font-mono text-ws-text-primary">{session.duration}</p>
-                  </div>
-                  <div className="text-right hidden sm:block">
-                    <p className="text-xs text-ws-text-secondary">Accuracy</p>
-                    <p className="text-sm font-mono text-green-400">{session.accuracy}%</p>
-                  </div>
-                  <div className="text-right hidden md:block">
-                    <p className="text-xs text-ws-text-secondary">Started</p>
-                    <p className="text-sm text-ws-text-primary">{session.startTime}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -243,14 +269,14 @@ export default function Overview() {
                 </div>
                 <div className="p-3 rounded-lg bg-white/5">
                   <p className="text-xs text-ws-text-secondary">Sessions</p>
-                  <p className="text-lg font-mono text-ws-text-primary">23</p>
+                  <p className="text-lg font-mono text-ws-text-primary">{stats.totalSessions}</p>
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Recent Activity */}
+        {/* Recent Activity - Static for now */}
         <Card className="bg-ws-black/50 border-white/10">
           <CardHeader>
             <CardTitle className="text-lg text-ws-text-primary">Recent Activity</CardTitle>
@@ -262,26 +288,8 @@ export default function Overview() {
                   <CheckCircle size={14} className="text-green-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-ws-text-primary">Transcript completed for E123/2024</p>
-                  <p className="text-xs text-ws-text-secondary">2 minutes ago</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-ws-coral/20 flex items-center justify-center flex-shrink-0">
-                  <Scale size={14} className="text-ws-coral" />
-                </div>
-                <div>
-                  <p className="text-sm text-ws-text-primary">3 contradictions detected in C456/2024</p>
-                  <p className="text-xs text-ws-text-secondary">15 minutes ago</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                  <Users size={14} className="text-blue-400" />
-                </div>
-                <div>
-                  <p className="text-sm text-ws-text-primary">Junior Associate verified 12 corrections</p>
-                  <p className="text-xs text-ws-text-secondary">1 hour ago</p>
+                  <p className="text-sm text-ws-text-primary">System ready</p>
+                  <p className="text-xs text-ws-text-secondary">Dashboard loaded</p>
                 </div>
               </div>
             </div>

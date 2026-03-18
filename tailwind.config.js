@@ -5,6 +5,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        // ── Tailwind UI / shadcn tokens ──────────────────────────────────
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -48,33 +49,48 @@ module.exports = {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        // Wakili-Scribe custom colors
+
+        // ── Wakili-Scribe: Home / Features / Pricing pages ───────────────
+        "primary-red": "#DC2626",
+        "primary-red-hover": "#B91C1C",
+
+        // ── Wakili-Scribe: Dashboard / Landing (original) ────────────────
         ws: {
           black: '#0B0C0E',
           white: '#F3F1EA',
           coral: '#FF4D2E',
           'text-primary': '#F6F6F6',
           'text-secondary': '#B9BDC7',
-        }
+        },
       },
+
       fontFamily: {
         sora: ['Sora', 'sans-serif'],
         inter: ['Inter', 'sans-serif'],
         mono: ['Space Mono', 'monospace'],
       },
+
       borderRadius: {
+        // ── custom ───────────────────────────────────────────────────────
+        button: '12px',
         '2xl': '28px',
-        'xl': '22px',
+        xl: '22px',
+        // ── shadcn ───────────────────────────────────────────────────────
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
         xs: "calc(var(--radius) - 6px)",
       },
+
       boxShadow: {
-        xs: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+        // ── custom ───────────────────────────────────────────────────────
+        glow: '0 0 30px rgba(220, 38, 38, 0.35)',
         card: '0 28px 80px rgba(0,0,0,0.45)',
         'card-light': '0 18px 50px rgba(0,0,0,0.10)',
+        // ── shadcn ───────────────────────────────────────────────────────
+        xs: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
       },
+
       keyframes: {
         "accordion-down": {
           from: { height: "0" },
@@ -88,11 +104,11 @@ module.exports = {
           "0%,70%,100%": { opacity: "1" },
           "20%,50%": { opacity: "0" },
         },
-        "float": {
+        float: {
           "0%, 100%": { transform: "translateY(-6px)" },
           "50%": { transform: "translateY(6px)" },
         },
-        "progress": {
+        progress: {
           "0%": { transform: "scaleX(0)" },
           "100%": { transform: "scaleX(1)" },
         },
@@ -101,12 +117,13 @@ module.exports = {
           "100%": { opacity: "1", transform: "translateX(0)" },
         },
       },
+
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "caret-blink": "caret-blink 1.25s ease-out infinite",
-        "float": "float 4s ease-in-out infinite",
-        "progress": "progress 3s ease-out infinite",
+        float: "float 4s ease-in-out infinite",
+        progress: "progress 3s ease-out infinite",
         "type-on": "type-on 0.5s ease-out forwards",
       },
     },

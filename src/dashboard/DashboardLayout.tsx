@@ -36,6 +36,12 @@ export default function DashboardLayout() {
   const { user, logout } = useAuth();
   const location = useLocation();
 
+  // ✅ Safely compute initials
+  const initials = user?.name
+    ?.split(' ')
+    .map(n => n[0])
+    .join('') ?? '??';
+
   return (
     <div className="min-h-screen bg-ws-black flex">
       {/* Mobile Sidebar Overlay */}
@@ -94,17 +100,17 @@ export default function DashboardLayout() {
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 rounded-full bg-ws-coral/20 flex items-center justify-center">
                 <span className="text-ws-coral font-semibold text-sm">
-                  {user?.name.split(' ').map(n => n[0]).join('')}
+                  {initials}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-ws-text-primary truncate">{user?.name}</p>
-                <p className="text-xs text-ws-text-secondary truncate">{user?.firmName}</p>
+                <p className="text-sm text-ws-text-primary truncate">{user?.name ?? '—'}</p>
+                <p className="text-xs text-ws-text-secondary truncate">{user?.firmName ?? '—'}</p>
               </div>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-xs text-ws-text-secondary">
-                Credits: <span className="text-ws-coral font-mono">KES {user?.credits.toLocaleString()}</span>
+                Credits: <span className="text-ws-coral font-mono">KES {user?.credits?.toLocaleString() ?? '0'}</span>
               </span>
               <button 
                 onClick={logout}

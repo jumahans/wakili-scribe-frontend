@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
+import { authApi } from '@/api/api';
 
 export type UserRole = 'senior_counsel' | 'associate' | 'junior_associate' | 'admin';
 
@@ -24,37 +25,39 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    const stored = localStorage.getItem('user');
+    return stored ? JSON.parse(stored) : null;
+  });
 
-  const login = useCallback(async (email: string, _password: string) => {
-    // Mock login - in production, this would call the Django API
-    const mockUser: User = {
-      id: '1',
-      email,
-      name: 'Adv. Jane Doe',
-      role: 'senior_counsel',
-      firmId: 'firm-001',
-      firmName: 'Kimani & Associates',
-      subscriptionTier: 'enterprise',
-      credits: 50000,
-    };
-    setUser(mockUser);
+  const login = useCallback(async (email: string, password: string) => {
+    const response = await authApi.login({ email, password });
+    const { access_token, refresh_token, user } = response.data;
+
+    localStorage.setItem('access_token', access_token);
+    localStorage.setItem('refresh_token', refresh_token);
+    localStorage.setItem('user', JSON.stringify(user));
+
+    setUser(user);
   }, []);
 
   const logout = useCallback(() => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user');
     setUser(null);
   }, []);
 
   const hasPermission = useCallback((permission: string) => {
     if (!user) return false;
-    
+
     const permissions: Record<UserRole, string[]> = {
       senior_counsel: ['view_all', 'edit_all', 'dispatch', 'verify', 'export', 'manage_team', 'manage_dictionary', 'view_audit'],
       associate: ['view_all', 'edit_transcript', 'verify', 'export'],
       junior_associate: ['view_assigned', 'edit_transcript', 'verify'],
       admin: ['view_all', 'edit_all', 'dispatch', 'verify', 'export', 'manage_team', 'manage_dictionary', 'view_audit', 'manage_billing'],
     };
-    
+
     return permissions[user.role].includes(permission);
   }, [user]);
 
