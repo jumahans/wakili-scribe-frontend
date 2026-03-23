@@ -20,6 +20,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   hasPermission: (permission: string) => boolean;
+  setUser: (user: User | null) => void; 
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -68,6 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       login,
       logout,
       hasPermission,
+      setUser, 
     }}>
       {children}
     </AuthContext.Provider>

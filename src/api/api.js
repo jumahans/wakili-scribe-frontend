@@ -66,6 +66,18 @@ export const authApi = {
   logout: () => api.post('/auth/logout'),
   getMe: () => api.get('/auth/me'),
   getSessions: () => api.get('/auth/sessions'),
+  getDashboard: () => api.get('/auth/dashboard'),
+  createSession: (data) => api.post('/court-sessions/create-session', null, {
+    params : {
+      title: data.title,
+      meeting_link: data.meeting_link
+    }
+  }),  
+  deleteSession: (id) => api.delete(`/court-sessions/delete-session/${id}`),  
+  startRecording: (id) => api.post(`court-sessions/start-session/${id}/start`), 
+  stopSession: (id) => api.post(`/court-sessions/stop-session/${id}/stop`),  
+  getCourtSessions: () => api.get('/court-sessions/session-list'),
+  cancelSession: (id) => api.post(`/court-sessions/stop-recording/${id}`),
 };
 
 export default api;

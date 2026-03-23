@@ -6,7 +6,6 @@ import {
   TrendingUp, 
   CheckCircle,
   Activity,
-  Users
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -58,10 +57,7 @@ export default function Overview() {
         const response = await authApi.getDashboard();
         const data: DashboardData = response.data;
         
-        // Update user in auth context
         setUser(data.user);
-        
-        // Set dashboard data
         setStats(data.stats);
         setSessions(data.recentSessions);
       } catch (err: any) {
@@ -94,20 +90,13 @@ export default function Overview() {
 
   const getStatusText = (status: Session['status']) => {
     switch (status) {
-      case 'live':
-        return 'Live';
-      case 'joining':
-        return 'Joining';
-      case 'recording':
-        return 'Recording';
-      case 'transcribing':
-        return 'Transcribing';
-      case 'completed':
-        return 'Completed';
-      case 'scheduled':
-        return 'Scheduled';
-      default:
-        return status;
+      case 'live': return 'Live';
+      case 'joining': return 'Joining';
+      case 'recording': return 'Recording';
+      case 'transcribing': return 'Transcribing';
+      case 'completed': return 'Completed';
+      case 'scheduled': return 'Scheduled';
+      default: return status;
     }
   };
 
@@ -129,15 +118,16 @@ export default function Overview() {
 
   if (!stats) return null;
 
+  const creditsMax = 10000;
+  const creditsPercent = Math.min((stats.creditsRemaining / creditsMax) * 100, 100);
+
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div>
         <h1 className="text-2xl font-sora font-bold text-ws-text-primary">Dashboard</h1>
         <p className="text-ws-text-secondary">Welcome back, here's what's happening today.</p>
       </div>
 
-      {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="bg-ws-black/50 border-white/10">
           <CardContent className="p-4">
@@ -196,7 +186,6 @@ export default function Overview() {
         </Card>
       </div>
 
-      {/* Active Sessions */}
       <Card className="bg-ws-black/50 border-white/10">
         <CardHeader>
           <CardTitle className="text-lg text-ws-text-primary flex items-center gap-2">
@@ -212,7 +201,7 @@ export default function Overview() {
           ) : (
             <div className="space-y-3">
               {sessions.map((session) => (
-                <div 
+                <div
                   key={session.id}
                   className="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
                 >
@@ -244,9 +233,7 @@ export default function Overview() {
         </CardContent>
       </Card>
 
-      {/* Bottom Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Credits */}
         <Card className="bg-ws-black/50 border-white/10">
           <CardHeader>
             <CardTitle className="text-lg text-ws-text-primary">Credits & Usage</CardTitle>
@@ -260,38 +247,53 @@ export default function Overview() {
                     KES {stats.creditsRemaining.toLocaleString()}
                   </span>
                 </div>
-                <Progress value={75} className="h-2 bg-white/10" />
+                <Progress value={creditsPercent} className="h-2 bg-white/10" />
               </div>
               <div className="grid grid-cols-2 gap-4 pt-2">
                 <div className="p-3 rounded-lg bg-white/5">
-                  <p className="text-xs text-ws-text-secondary">This Month</p>
-                  <p className="text-lg font-mono text-ws-text-primary">KES 12,500</p>
+                  <p className="text-xs text-ws-text-secondary">Total Sessions</p>
+                  <p className="text-lg font-mono text-ws-text-primary">{stats.totalSessions}</p>
                 </div>
                 <div className="p-3 rounded-lg bg-white/5">
-                  <p className="text-xs text-ws-text-secondary">Sessions</p>
-                  <p className="text-lg font-mono text-ws-text-primary">{stats.totalSessions}</p>
+                  <p className="text-xs text-ws-text-secondary">Completed</p>
+                  <p className="text-lg font-mono text-ws-text-primary">
+                    {sessions.filter(s => s.status === 'completed').length}
+                  </p>
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Recent Activity - Static for now */}
         <Card className="bg-ws-black/50 border-white/10">
           <CardHeader>
             <CardTitle className="text-lg text-ws-text-primary">Recent Activity</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
-                  <CheckCircle size={14} className="text-green-400" />
+              {sessions.length === 0 ? (
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                    <CheckCircle size={14} className="text-green-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-ws-text-primary">System ready</p>
+                    <p className="text-xs text-ws-text-secondary">Dashboard loaded</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-ws-text-primary">System ready</p>
-                  <p className="text-xs text-ws-text-secondary">Dashboard loaded</p>
-                </div>
-              </div>
+              ) : (
+                sessions.map((session) => (
+                  <div key={session.id} className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-ws-coral/20 flex items-center justify-center flex-shrink-0">
+                      {getStatusIcon(session.status)}
+                    </div>
+                    <div>
+                      <p className="text-sm text-ws-text-primary">{session.caseNumber}</p>
+                      <p className="text-xs text-ws-text-secondary">{getStatusText(session.status)} · {session.startTime}</p>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
