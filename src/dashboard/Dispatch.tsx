@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Radio, Plus, Trash2, Play, Square, ExternalLink, CheckCircle, AlertCircle, Copy, XCircle } from 'lucide-react';
+import { Radio, Plus, Trash2, Play, Square, CheckCircle, AlertCircle, XCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -113,10 +113,6 @@ export default function Dispatch() {
     }
   };
 
-  const openTeams = (url: string) => {
-    window.open(url, '_blank', 'noopener,noreferrer');
-  };
-
   const getStatusColor = (status: Session['status']) => {
     switch (status) {
       case 'scheduled': return 'text-ws-text-secondary';
@@ -187,25 +183,10 @@ export default function Dispatch() {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center gap-2 p-2 rounded bg-white/5">
-                <ExternalLink size={14} className="text-ws-text-secondary flex-shrink-0" />
-                <span className="text-xs text-ws-text-secondary truncate flex-1">
+              <div className="p-2 rounded bg-white/5">
+                <span className="text-xs text-ws-text-secondary break-all">
                   {session.meetingUrl}
                 </span>
-                <button
-                  onClick={() => navigator.clipboard.writeText(session.meetingUrl)}
-                  className="text-ws-text-secondary hover:text-ws-text-primary"
-                >
-                  <Copy size={14} />
-                </button>
-                <Button
-                  onClick={() => openTeams(session.meetingUrl)}
-                  size="sm"
-                  variant="outline"
-                  className="ml-2 border-blue-500 text-blue-400 hover:bg-blue-500/10"
-                >
-                  Open Teams
-                </Button>
               </div>
 
               {session.startTime && (
