@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Radio, Plus, Trash2, Play, Square, CheckCircle, AlertCircle, XCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -24,10 +24,24 @@ export default function Dispatch() {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [loading, setLoading] = useState(false);
   const [newSession, setNewSession] = useState({ caseNumber: '', meetingUrl: '' });
+  const [transcripts, setTranscripts] = useState<Record<string, string[]>>({});
+  const wsRefs = useRef<Record<string, WebSocket>>({});
+  const transcriptEndRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
     fetchSessions();
+    return () => {
+      // Cleanup all websockets on unmount
+      Object.values(wsRefs.current).forEach(ws => ws.close());
+    };
   }, []);
+
+  // Auto scroll transcript to bottom
+  useEffect(() => {
+    Object.keys(transcripts).forEach(id => {
+      transcriptEndRefs.current[id]?.scrollIntoView({ behavior: 'smooth' });
+    });
+  }, [transcripts]);
 
   const fetchSessions = async () => {
     try {
@@ -47,6 +61,48 @@ export default function Dispatch() {
       setSessions(mapped);
     } catch (error) {
       console.error('Failed to fetch sessions:', error);
+    }
+  };
+
+  const connectWebSocket = (sessionId: string) => {
+    if (wsRefs.current[sessionId]) return;
+
+    const ws = new WebSocket(`ws://localhost:8000/ws/transcribe/${sessionId}/`);
+
+    ws.onopen = () => {
+      console.log(`✅ WebSocket connected for session ${sessionId}`);
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.transcript) {
+          setTranscripts(prev => ({
+            ...prev,
+            [sessionId]: [...(prev[sessionId] || []), data.transcript]
+          }));
+        }
+      } catch (e) {
+        console.error('WebSocket message parse error:', e);
+      }
+    };
+
+    ws.onerror = (error) => {
+      console.error(`WebSocket error for session ${sessionId}:`, error);
+    };
+
+    ws.onclose = () => {
+      console.log(`WebSocket closed for session ${sessionId}`);
+      delete wsRefs.current[sessionId];
+    };
+
+    wsRefs.current[sessionId] = ws;
+  };
+
+  const disconnectWebSocket = (sessionId: string) => {
+    if (wsRefs.current[sessionId]) {
+      wsRefs.current[sessionId].close();
+      delete wsRefs.current[sessionId];
     }
   };
 
@@ -75,8 +131,14 @@ export default function Dispatch() {
 
   const removeSession = async (id: string) => {
     try {
+      disconnectWebSocket(id);
       await authApi.deleteSession(id);
       setSessions(sessions.filter(s => s.id !== id));
+      setTranscripts(prev => {
+        const updated = { ...prev };
+        delete updated[id];
+        return updated;
+      });
     } catch (error) {
       console.error('Failed to delete session:', error);
     }
@@ -86,8 +148,9 @@ export default function Dispatch() {
     try {
       await authApi.startRecording(id);
       setSessions(sessions.map(s =>
-        s.id === id ? { ...s, status: 'recording' as const, startTime: new Date().toLocaleTimeString() } : s
+        s.id === id ? { ...s, status: 'joining' as const, startTime: new Date().toLocaleTimeString() } : s
       ));
+      connectWebSocket(id);
     } catch (error) {
       console.error('Failed to start recording:', error);
     }
@@ -99,6 +162,7 @@ export default function Dispatch() {
       setSessions(sessions.map(s =>
         s.id === id ? { ...s, status: 'completed' as const } : s
       ));
+      disconnectWebSocket(id);
     } catch (error) {
       console.error('Failed to stop recording:', error);
     }
@@ -106,6 +170,7 @@ export default function Dispatch() {
 
   const cancelMeeting = async (id: string) => {
     try {
+      disconnectWebSocket(id);
       await authApi.cancelSession(id);
       setSessions(sessions.filter(s => s.id !== id));
     } catch (error) {
@@ -128,6 +193,8 @@ export default function Dispatch() {
     switch (status) {
       case 'recording':
         return <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />;
+      case 'joining':
+        return <div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse" />;
       case 'completed':
         return <CheckCircle size={14} className="text-green-400" />;
       case 'failed':
@@ -204,6 +271,48 @@ export default function Dispatch() {
                 </div>
               )}
 
+              {/* Live Transcript Box */}
+              {['joining', 'recording'].includes(session.status) && (
+                <div className="rounded-lg bg-black/40 border border-white/10 overflow-hidden">
+                  <div className="flex items-center justify-between px-3 py-2 border-b border-white/10">
+                    <span className="text-xs font-medium text-ws-text-secondary">Live Transcript</span>
+                    <div className="flex items-center gap-1">
+                      <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                      <span className="text-xs text-red-400">LIVE</span>
+                    </div>
+                  </div>
+                  <div className="p-3 max-h-48 overflow-y-auto space-y-1">
+                    {(transcripts[session.id] || []).length === 0 ? (
+                      <p className="text-xs text-ws-text-secondary italic">
+                        Waiting for speech...
+                      </p>
+                    ) : (
+                      (transcripts[session.id] || []).map((line, i) => (
+                        <p key={i} className="text-xs text-ws-text-primary leading-relaxed">
+                          <span className="text-ws-text-secondary mr-2">
+                            {String(i + 1).padStart(2, '0')}
+                          </span>
+                          {line}
+                        </p>
+                      ))
+                    )}
+                    <div ref={el => { transcriptEndRefs.current[session.id] = el; }} />
+                  </div>
+                </div>
+              )}
+
+              {/* Completed transcript summary */}
+              {session.status === 'completed' && transcripts[session.id]?.length > 0 && (
+                <div className="rounded-lg bg-green-500/5 border border-green-500/20 p-3">
+                  <p className="text-xs text-green-400 font-medium mb-1">
+                    Session Complete — {transcripts[session.id].length} segments captured
+                  </p>
+                  <p className="text-xs text-ws-text-secondary line-clamp-2">
+                    {transcripts[session.id][transcripts[session.id].length - 1]}
+                  </p>
+                </div>
+              )}
+
               {session.accuracy && (
                 <div className="flex items-center justify-between p-2 rounded bg-green-500/10">
                   <span className="text-xs text-green-400">Accuracy</span>
@@ -222,7 +331,7 @@ export default function Dispatch() {
                     Start
                   </Button>
                 )}
-                {session.status === 'recording' && (
+                {['joining', 'recording'].includes(session.status) && (
                   <Button
                     onClick={() => stopRecording(session.id)}
                     className="flex-1 bg-red-600 hover:bg-red-700 text-white"
